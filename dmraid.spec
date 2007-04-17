@@ -1,6 +1,6 @@
 %define name dmraid
 %define version 1.0.0
-%define extraver rc11
+%define extraver rc14
 #define pre pre1
 %define rel 1
 
@@ -30,11 +30,6 @@ Version: %{version}
 Release: %{release}
 Source0: http://people.redhat.com/~heinzm/sw/dmraid/src/dmraid-%{version}%{extrasrc}.tar.bz2
 Patch0: dmraid-mdk.patch
-# patches from fedora development
-Patch10: dmraid-1.0.0.rc11-metadata-stride.patch
-Patch11: dmraid-1.0.0.rc11-format-handler-dos.patch
-Patch12: dmraid-1.0.0.rc11-hpt37x-errorlog.patch
-Patch13: dmraid-1.0.0.rc11-dupes.patch
 
 License: GPL
 Group: System/Kernel and hardware
@@ -67,10 +62,6 @@ VIA Software RAID
 
 %prep
 %setup -q -n %{name}/%{version}.%{extraver}
-%patch10 -p2
-%patch11 -p2
-%patch12 -p2
-%patch13 -p2
 %patch0 -p2 -b .mdk
 
 %build
