@@ -2,7 +2,7 @@
 %define version 1.0.0
 %define extraver rc14
 #define pre pre1
-%define rel 1
+%define rel 2
 
 # yes this sucks, but it has to
 %if %{?extraver:1}%{?!extraver:0}
@@ -19,6 +19,12 @@
 %define use_dietlibc 1
 %else
 %define use_dietlibc 0
+%endif
+%if %{mdkversion} >= 200600
+%define dietlibc_version 0.28-5mdk
+%endif
+%if %{mdkversion} >= 200700
+%define dietlibc_version 0.29-%{mkrel 6}
 %endif
 
 %{?_with_dietlibc: %{expand: %%global use_dietlibc 1}}
@@ -37,7 +43,7 @@ BuildRoot: %{_tmppath}/%{name}-buildroot
 URL: http://people.redhat.com/~heinzm
 BuildRequires:	device-mapper-devel >= 1.00.09
 %if %{use_dietlibc}
-BuildRequires: dietlibc-devel >= 0.29
+BuildRequires: dietlibc-devel >= %{dietlibc_version}
 %else
 BuildRequires: glibc-static-devel
 %endif
