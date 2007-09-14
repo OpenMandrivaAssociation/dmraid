@@ -2,7 +2,7 @@
 %define version 1.0.0
 %define extraver rc14
 #define pre pre1
-%define rel 2
+%define rel 3
 
 # yes this sucks, but it has to
 %if %{?extraver:1}%{?!extraver:0}
