@@ -20,11 +20,12 @@
 %else
 %define use_dietlibc 0
 %endif
+%if %{mdkversion} >= 200700
+%define dietlibc_version 0.29-%{mkrel 6}
+%else
 %if %{mdkversion} >= 200600
 %define dietlibc_version 0.28-5mdk
 %endif
-%if %{mdkversion} >= 200700
-%define dietlibc_version 0.29-%{mkrel 6}
 %endif
 
 %{?_with_dietlibc: %{expand: %%global use_dietlibc 1}}
@@ -36,6 +37,11 @@ Version: %{version}
 Release: %{release}
 Source0: http://people.redhat.com/~heinzm/sw/dmraid/src/dmraid-%{version}%{extrasrc}.tar.bz2
 Patch0: dmraid-mdk.patch
+Patch1: dmraid-isw_raid10.patch
+Patch2: dmraid-isw_raid10_1.patch
+Patch3: dmraid-isw_segfault.patch
+Patch4: dmraid-pdc_max_sectors.patch
+Patch5: dmraid-pdc_configoffsets.patch
 
 License: GPL
 Group: System/Kernel and hardware
@@ -69,6 +75,11 @@ VIA Software RAID
 %prep
 %setup -q -n %{name}/%{version}.%{extraver}
 %patch0 -p2 -b .mdk
+%patch1 -p1 -b .isw_raid10
+%patch2 -p0 -b .isw_raid101
+%patch3 -p0 -b .isw_segfault
+%patch4 -p1 -b .pdc_max_sectors
+%patch5 -p0 -b .pdc_configoffsets
 
 %build
 %if %{use_dietlibc}
