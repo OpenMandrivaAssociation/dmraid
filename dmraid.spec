@@ -45,7 +45,6 @@ Patch5: dmraid-pdc_configoffsets.patch
 
 License: GPL
 Group: System/Kernel and hardware
-BuildRoot: %{_tmppath}/%{name}-buildroot
 URL: http://people.redhat.com/~heinzm
 BuildRequires:	device-mapper-devel >= 1.00.09
 %if %{use_dietlibc}
