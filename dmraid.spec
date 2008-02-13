@@ -39,9 +39,10 @@ Source0: http://people.redhat.com/~heinzm/sw/dmraid/src/dmraid-%{version}%{extra
 Patch0: dmraid-mdk.patch
 Patch1: dmraid-isw_raid10.patch
 Patch2: dmraid-isw_raid10_1.patch
-Patch3: dmraid-isw_segfault.patch
 Patch4: dmraid-pdc_max_sectors.patch
 Patch5: dmraid-pdc_configoffsets.patch
+# (from RH)
+Patch11: dmraid-1.0.0.rc14-solitary-meta-block.patch
 
 License: GPL
 Group: System/Kernel and hardware
@@ -77,9 +78,9 @@ VIA Software RAID
 %patch0 -p2 -b .mdk
 %patch1 -p1 -b .isw_raid10
 %patch2 -p0 -b .isw_raid101
-%patch3 -p0 -b .isw_segfault
 %patch4 -p1 -b .pdc_max_sectors
 %patch5 -p0 -b .pdc_configoffsets
+%patch11 -p1 -b .solitary-meta-block
 
 %build
 %if %{use_dietlibc}
