@@ -2,7 +2,7 @@
 %define version 1.0.0
 %define extraver rc14
 #define pre pre1
-%define rel 3
+%define rel 4
 
 # yes this sucks, but it has to
 %if %{?extraver:1}%{?!extraver:0}
@@ -42,7 +42,11 @@ Patch2: dmraid-isw_raid10_1.patch
 Patch4: dmraid-pdc_max_sectors.patch
 Patch5: dmraid-pdc_configoffsets.patch
 # (from RH)
+Patch10: dmraid-1.0.0.rc14-jmicron-name.patch
 Patch11: dmraid-1.0.0.rc14-solitary-meta-block.patch
+Patch12: dmraid-1.0.0.rc14-UUID.patch
+Patch13: dmraid-1.0.0.rc14-ERROR.patch
+Patch14: dmraid-1.0.0.rc14-UUID-Subsystemprefix.patch
 
 License: GPL
 Group: System/Kernel and hardware
@@ -80,7 +84,11 @@ VIA Software RAID
 %patch2 -p0 -b .isw_raid101
 %patch4 -p1 -b .pdc_max_sectors
 %patch5 -p0 -b .pdc_configoffsets
+%patch10 -p1 -b .jmicron-name
 %patch11 -p1 -b .solitary-meta-block
+%patch12 -p1 -b .UUID
+%patch13 -p1 -b .ERROR
+%patch14 -p1 -b .UUID-Subsystemprefix
 
 %build
 %if %{use_dietlibc}
