@@ -92,6 +92,7 @@ VIA Software RAID
 
 %build
 %if %{use_dietlibc}
+CFLAGS="%{optflags} -D_BSD_SOURCE" \
 %configure2_5x --enable-dietlibc --disable-libselinux
 %else
 %configure2_5x --enable-static_link --disable-libselinux
