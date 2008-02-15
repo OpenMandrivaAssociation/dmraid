@@ -20,13 +20,6 @@
 %else
 %define use_dietlibc 0
 %endif
-%if %{mdkversion} >= 200700
-%define dietlibc_version 0.29-%{mkrel 6}
-%else
-%if %{mdkversion} >= 200600
-%define dietlibc_version 0.28-5mdk
-%endif
-%endif
 
 %{?_with_dietlibc: %{expand: %%global use_dietlibc 1}}
 %{?_without_dietlibc: %{expand: %%global use_dietlibc 0}}
@@ -54,7 +47,7 @@ BuildRoot: %{_tmppath}/%{name}-buildroot
 URL: http://people.redhat.com/~heinzm
 BuildRequires:	device-mapper-devel >= 1.00.09
 %if %{use_dietlibc}
-BuildRequires: dietlibc-devel >= %{dietlibc_version}
+BuildRequires: dietlibc-devel
 %else
 BuildRequires: glibc-static-devel
 %endif
