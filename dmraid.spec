@@ -7,10 +7,10 @@
 # yes this sucks, but it has to
 %if %{?extraver:1}%{?!extraver:0}
 %if %{?pre:1}%{?!pre:0}
-%define release %mkrel 0.%{extraver}.0.%{pre}.%{rel}
+%define release %manbo_mkrel 0.%{extraver}.0.%{pre}.%{rel}
 %define extrasrc .%{extraver}-%{pre}
 %else
-%define release %mkrel 0.%{extraver}.%{rel}
+%define release %manbo_mkrel 0.%{extraver}.%{rel}
 %define extrasrc .%{extraver}
 %endif
 %endif
