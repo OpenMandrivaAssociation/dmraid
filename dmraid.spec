@@ -2,7 +2,7 @@
 %define version 1.0.0
 %define extraver rc14
 #define pre pre1
-%define rel 4
+%define rel 5
 
 # yes this sucks, but it has to
 %if %{?extraver:1}%{?!extraver:0}
@@ -43,7 +43,7 @@ Patch14: dmraid-1.0.0.rc14-UUID-Subsystemprefix.patch
 
 License: GPL
 Group: System/Kernel and hardware
-BuildRoot: %{_tmppath}/%{name}-buildroot
+BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
 URL: http://people.redhat.com/~heinzm
 BuildRequires:	device-mapper-devel >= 1.00.09
 %if %{use_dietlibc}
