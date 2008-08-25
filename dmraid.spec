@@ -2,7 +2,7 @@
 %define version 1.0.0
 %define extraver rc14
 #define pre pre1
-%define rel 5
+%define rel 6
 
 # yes this sucks, but it has to
 %if %{?extraver:1}%{?!extraver:0}
@@ -34,6 +34,7 @@ Patch1: dmraid-isw_raid10.patch
 Patch2: dmraid-isw_raid10_1.patch
 Patch4: dmraid-pdc_max_sectors.patch
 Patch5: dmraid-pdc_configoffsets.patch
+Patch6: dmraid-use-p-separator-in-partition-device-name-when-needed.patch
 # (from RH)
 Patch10: dmraid-1.0.0.rc14-jmicron-name.patch
 Patch11: dmraid-1.0.0.rc14-solitary-meta-block.patch
@@ -77,6 +78,7 @@ VIA Software RAID
 %patch2 -p0 -b .isw_raid101
 %patch4 -p1 -b .pdc_max_sectors
 %patch5 -p0 -b .pdc_configoffsets
+%patch6 -p2 -b .p
 %patch10 -p1 -b .jmicron-name
 %patch11 -p1 -b .solitary-meta-block
 %patch12 -p1 -b .UUID
