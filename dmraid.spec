@@ -2,7 +2,7 @@
 %define version 1.0.0
 %define extraver rc14
 #define pre pre1
-%define rel 6
+%define rel 7
 
 # yes this sucks, but it has to
 %if %{?extraver:1}%{?!extraver:0}
@@ -34,7 +34,8 @@ Patch1: dmraid-isw_raid10.patch
 Patch2: dmraid-isw_raid10_1.patch
 Patch4: dmraid-pdc_max_sectors.patch
 Patch5: dmraid-pdc_configoffsets.patch
-Patch6: dmraid-use-p-separator-in-partition-device-name-when-needed.patch
+# to be compatible with mkinitrd/nashDmCreatePartitions()
+Patch6: dmraid-use-p-separator-in-partition-device-name.patch
 # (from RH)
 Patch10: dmraid-1.0.0.rc14-jmicron-name.patch
 Patch11: dmraid-1.0.0.rc14-solitary-meta-block.patch
