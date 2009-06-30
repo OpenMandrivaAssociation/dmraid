@@ -1,8 +1,8 @@
 %define name dmraid
 %define version 1.0.0
-%define extraver rc14
+%define extraver rc15
 #define pre pre1
-%define rel 7
+%define rel 1
 
 # yes this sucks, but it has to
 %if %{?extraver:1}%{?!extraver:0}
@@ -30,18 +30,6 @@ Version: %{version}
 Release: %{release}
 Source0: http://people.redhat.com/~heinzm/sw/dmraid/src/dmraid-%{version}%{extrasrc}.tar.bz2
 Patch0: dmraid-mdk.patch
-Patch1: dmraid-isw_raid10.patch
-Patch2: dmraid-isw_raid10_1.patch
-Patch4: dmraid-pdc_max_sectors.patch
-Patch5: dmraid-pdc_configoffsets.patch
-# to be compatible with mkinitrd/nashDmCreatePartitions()
-Patch6: dmraid-use-p-separator-in-partition-device-name.patch
-# (from RH)
-Patch10: dmraid-1.0.0.rc14-jmicron-name.patch
-Patch11: dmraid-1.0.0.rc14-solitary-meta-block.patch
-Patch12: dmraid-1.0.0.rc14-UUID.patch
-Patch13: dmraid-1.0.0.rc14-ERROR.patch
-Patch14: dmraid-1.0.0.rc14-UUID-Subsystemprefix.patch
 
 License: GPL
 Group: System/Kernel and hardware
@@ -75,16 +63,6 @@ VIA Software RAID
 %prep
 %setup -q -n %{name}/%{version}.%{extraver}
 %patch0 -p2 -b .mdk
-%patch1 -p1 -b .isw_raid10
-%patch2 -p0 -b .isw_raid101
-%patch4 -p1 -b .pdc_max_sectors
-%patch5 -p0 -b .pdc_configoffsets
-%patch6 -p2 -b .p
-%patch10 -p1 -b .jmicron-name
-%patch11 -p1 -b .solitary-meta-block
-%patch12 -p1 -b .UUID
-%patch13 -p1 -b .ERROR
-%patch14 -p1 -b .UUID-Subsystemprefix
 
 %build
 %if %{use_dietlibc}
