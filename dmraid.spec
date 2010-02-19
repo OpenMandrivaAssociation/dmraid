@@ -32,6 +32,7 @@ Source0: http://people.redhat.com/~heinzm/sw/dmraid/src/dmraid-%{version}%{extra
 
 # From RedHat
 Patch1:	ddf1_lsi_persistent_name.patch
+Patch2: pdc_raid10_failure.patch
 # /From RedHat
 
 License: GPL
@@ -66,6 +67,7 @@ VIA Software RAID
 %prep
 %setup -q -n %{name}/%{version}.%{extraver}
 %patch1 -p1 -b .ddf1_lsi_persistent_name
+%patch2 -p1 -b .pdc_raid10_failure
 
 %build
 %if %{use_dietlibc}
