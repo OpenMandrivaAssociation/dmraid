@@ -24,6 +24,11 @@
 %{?_with_dietlibc: %{expand: %%global use_dietlibc 1}}
 %{?_without_dietlibc: %{expand: %%global use_dietlibc 0}}
 
+# Building of dmraid-event-logwatch (disabled by default)
+%define build_logwatch            0
+%{?_with_logwatch: %{expand: %%global build_logwatch 1}}
+%{?_without_logwatch: %{expand: %%global build_logwatch 0}}
+
 Summary: Device-mapper ATARAID tool
 Name: %{name}
 Version: %{version}
@@ -72,11 +77,46 @@ Silicon Image Medley
 SNIA DDF1
 VIA Software RAID
 
+%package devel
+Summary: Development libraries and headers for dmraid.
+Group: Development/Libraries
+Requires: dmraid = %{version}-%{release}
+
+%description devel
+dmraid-devel provides a library interface for RAID device discovery,
+RAID set activation and display of properties for ATARAID volumes.
+
+%package events
+Summary: dmevent_tool (Device-mapper event tool)
+Group: System Environment/Base
+Requires: dmraid = %{version}-%{release}
+Requires: device-mapper-event
+
+%description events
+Provides a dmeventd DSO and the dmevent_tool to register devices with it
+for device monitoring. All active RAID sets should be manually registered
+with dmevent_tool.
+
+%if %{build_logwatch}
+%package events-logwatch
+Summary: dmraid logwatch-based email reporting
+Group: System Environment/Base
+Requires: dmraid-events = %{version}-%{release}, logwatch, /etc/cron.d
+
+%description events-logwatch
+Provides device failure reporting via logwatch-based email reporting.
+Device failure reporting has to be activated manually by activating the 
+/etc/cron.d/dmeventd-logwatch entry and by calling the dmevent_tool
+(see manual page for examples) for any active RAID sets.
+%endif
+
+
 %prep
 %setup -q -n %{name}/%{version}.%{extraver}
 %patch1 -p1 -b .ddf1_lsi_persistent_name
 %patch2 -p1 -b .pdc_raid10_failure
 %patch3 -p1 -b .libdmraid_events_isw_strfmt
+
 
 %build
 %if %{use_dietlibc}
@@ -91,15 +131,40 @@ make clean
 %configure --with-user=`id -un` --with-group=`id -gn`
 make
 
+
 %install
 rm -rf %{buildroot}
-mkdir -p %{buildroot}%{_libdir} %{buildroot}/sbin
+mkdir -p %{buildroot}{%{_libdir},/sbin,/var/lock/dmraid,/etc/cron.d/,/etc/logwatch/conf/services/,/etc/logwatch/scripts/services/}
 %makeinstall -s sbindir=%{buildroot}/sbin
 install tools/dmraid-static %{buildroot}/sbin
-rm -rf %{buildroot}%{_includedir}/dmraid
+install -m 644 include/dmraid/*.h %{buildroot}%{_includedir}/dmraid/
+rm -rf %{buildroot}%{_libdir}/libdmraid.a
+
+# If requested, install the libdmraid and libdmraid-events (for dmeventd) DSO
+install -m 755 lib/libdmraid.so \
+	%{buildroot}%{_libdir}/libdmraid.so.%{version}
+install -m 755 lib/libdmraid-events-isw.so \
+	%{buildroot}%{_libdir}/libdmraid-events-isw.so.%{version}
+
+
+%if %{build_logwatch}
+# Install logwatch config file and script for dmeventd
+install -m 644 logwatch/dmeventd.conf %{buildroot}/etc/logwatch/conf/services/dmeventd.conf
+install -m 755 logwatch/dmeventd %{buildroot}/etc/logwatch/scripts/services/dmeventd
+install -m 644 logwatch/dmeventd_cronjob.txt %{buildroot}/etc/cron.d/dmeventd-logwatch
+install -m 0700 /dev/null %{buildroot}/etc/logwatch/scripts/services/dmeventd_syslogpattern.txt
+%endif
+
 
 %clean
 rm -rf %{buildroot}
+
+
+%post -p /sbin/ldconfig
+%postun -p /sbin/ldconfig
+%post events -p /sbin/ldconfig
+%postun events -p /sbin/ldconfig
+
 
 %files
 %defattr(644,root,root,755)
@@ -107,6 +172,27 @@ rm -rf %{buildroot}
 %attr(755,root,root) /sbin/dmraid
 %attr(755,root,root) /sbin/dmraid-static
 %{_mandir}/man8/dmraid.8*
-%exclude %{_libdir}
+%{_libdir}/libdmraid.so*
+/var/lock/dmraid
 
 
+%files devel
+%defattr(-,root,root)
+%dir %{_includedir}/dmraid
+%{_includedir}/dmraid/*
+
+
+%files events
+%defattr(-,root,root)
+%attr(755,root,root) /sbin/dmevent_tool
+%{_libdir}/libdmraid-events-isw.so*
+%{_mandir}/man8/dmevent_tool*
+
+
+%if %{build_logwatch}
+%files events-logwatch
+%defattr(-,root,root)
+%config(noreplace) /etc/logwatch/*
+%config(noreplace) /etc/cron.d/dmeventd-logwatch
+%ghost /etc/logwatch/scripts/services/dmeventd_syslogpattern.txt
+%endif
