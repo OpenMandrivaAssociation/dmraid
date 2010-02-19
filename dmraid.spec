@@ -1,6 +1,6 @@
 %define name dmraid
 %define version 1.0.0
-%define extraver rc15
+%define extraver rc16
 #define pre pre1
 %define rel 1
 
