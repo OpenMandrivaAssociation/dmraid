@@ -51,21 +51,25 @@ BuildRequires: glibc-static-devel
 %endif
 
 %description
-dmraid (Device-Mapper Raid tool) discovers, [de]activates and displays
-properties of software RAID sets (i.e. ATARAID) and contained DOS
-partitions using the device-mapper runtime of the 2.6 kernel.
+dmraid (Device-Mapper Raid tool) supports RAID device discovery, RAID
+set activation, creation, removal, rebuild and display of properties for
+ATARAID/DDF1 metadata.
 
-The following ATARAID types are supported on Linux 2.6:
+dmraid uses libdevmapper and the device-mapper kernel runtime to create
+devices with respective mappings for the ATARAID sets discovered.
+
+The following ATARAID types are supported:
 
 Adaptec HostRAID ASR
 Highpoint HPT37X
 Highpoint HPT45X
 Intel Software RAID
-JMicron JMB36X
+JMicron JMB36x
 LSI Logic MegaRAID
 NVidia NForce
 Promise FastTrack
 Silicon Image Medley
+SNIA DDF1
 VIA Software RAID
 
 %prep
