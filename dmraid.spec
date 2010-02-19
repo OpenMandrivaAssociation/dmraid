@@ -81,9 +81,9 @@ VIA Software RAID
 %build
 %if %{use_dietlibc}
 CFLAGS="%{optflags} -D_BSD_SOURCE" \
-%configure2_5x --enable-dietlibc --disable-libselinux
+%configure2_5x --enable-dietlibc --disable-libselinux --disable-libsepol --enable-led --enable-intel_led
 %else
-%configure2_5x --enable-static_link --disable-libselinux
+%configure2_5x --enable-static_link --disable-libselinux --disable-libsepol --enable-led --enable-intel_led
 %endif
 make
 mv tools/dmraid tools/dmraid-static
