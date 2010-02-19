@@ -31,6 +31,7 @@ Release: %{release}
 Source0: http://people.redhat.com/~heinzm/sw/dmraid/src/dmraid-%{version}%{extrasrc}.tar.bz2
 
 # From RedHat
+Patch1:	ddf1_lsi_persistent_name.patch
 # /From RedHat
 
 License: GPL
@@ -64,6 +65,7 @@ VIA Software RAID
 
 %prep
 %setup -q -n %{name}/%{version}.%{extraver}
+%patch1 -p1 -b .ddf1_lsi_persistent_name
 
 %build
 %if %{use_dietlibc}
