@@ -16,7 +16,7 @@
 %endif
 
 %ifarch %{ix86} x86_64
-%define use_dietlibc 1
+%define use_dietlibc 0
 %else
 %define use_dietlibc 0
 %endif
@@ -29,18 +29,8 @@ Name: %{name}
 Version: %{version}
 Release: %{release}
 Source0: http://people.redhat.com/~heinzm/sw/dmraid/src/dmraid-%{version}%{extrasrc}.tar.bz2
-Patch0: dmraid-mdk.patch
 
 # From RedHat
-Patch1: dmraid-1.0.0.rc15-whitespace.patch
-# Fix mismatch between BIOS and dmraid's view of ISW raid 10 sets
-Patch2: dmraid-1.0.0.rc15-isw-raid10.patch
-# Add --rm_partitions telling the kernel to forget about partitions
-# on underlying disk, to event direct access
-Patch3: dmraid-1.0.0.rc15-rm_partitions.patch
-# Fix activation of isw raid sets when the disks have serialnumber longer
-# than 16 characters
-Patch4: dmraid-1.0.0.rc15-isw-serial.patch
 # /From RedHat
 
 License: GPL
@@ -74,11 +64,6 @@ VIA Software RAID
 
 %prep
 %setup -q -n %{name}/%{version}.%{extraver}
-%patch0 -p2 -b .mdk
-%patch1 -p1 -b .whitespace
-%patch2 -p1 -b .isw-raid10
-%patch3 -p1 -b .rm_partitions
-%patch4 -p1 -b .isw-serial
 
 %build
 %if %{use_dietlibc}
