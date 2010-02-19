@@ -34,6 +34,7 @@ Source0: http://people.redhat.com/~heinzm/sw/dmraid/src/dmraid-%{version}%{extra
 Patch1:	ddf1_lsi_persistent_name.patch
 Patch2: pdc_raid10_failure.patch
 # /From RedHat
+Patch3: lib-events-libdmraid-events-isw-strfmt.patch
 
 License: GPL
 Group: System/Kernel and hardware
@@ -68,6 +69,7 @@ VIA Software RAID
 %setup -q -n %{name}/%{version}.%{extraver}
 %patch1 -p1 -b .ddf1_lsi_persistent_name
 %patch2 -p1 -b .pdc_raid10_failure
+%patch3 -p1 -b .libdmraid_events_isw_strfmt
 
 %build
 %if %{use_dietlibc}
