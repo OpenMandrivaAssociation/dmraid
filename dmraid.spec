@@ -47,7 +47,7 @@ Patch2: pdc_raid10_failure.patch
 # /From RedHat
 Patch3: lib-events-libdmraid-events-isw-strfmt.patch
 
-License: GPL
+License: GPLv2+
 Group: System/Kernel and hardware
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
 URL: http://people.redhat.com/~heinzm
