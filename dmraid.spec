@@ -19,6 +19,7 @@
 %define _libdir /%{_lib}
 
 ### FIXME: Broken linking
+%define _disable_ld_as_needed 1
 %define _disable_ld_no_undefined 1
 
 %ifarch %{ix86} x86_64
