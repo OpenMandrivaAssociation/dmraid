@@ -40,7 +40,8 @@ License: GPL
 Group: System/Kernel and hardware
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
 URL: http://people.redhat.com/~heinzm
-BuildRequires:	device-mapper-devel >= 1.00.09
+BuildRequires:  device-mapper-devel >= 1.02.02
+BuildRequires:  device-mapper-event-devel
 %if %{use_dietlibc}
 BuildRequires: dietlibc-devel
 %else
