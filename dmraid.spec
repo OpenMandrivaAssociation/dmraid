@@ -31,12 +31,12 @@
 %{?_without_dietlibc: %{expand: %%global use_dietlibc 0}}
 
 # Building of dmraid-event-logwatch (disabled by default)
-%define build_logwatch            0
+%define build_logwatch 0
 %{?_with_logwatch: %{expand: %%global build_logwatch 1}}
 %{?_without_logwatch: %{expand: %%global build_logwatch 0}}
 
 Summary: Device-mapper ATARAID tool
-Name: %{name}
+Name:	 %{name}
 Version: %{version}
 Release: %{release}
 Source0: http://people.redhat.com/~heinzm/sw/dmraid/src/dmraid-%{version}%{extrasrc}.tar.bz2
@@ -51,10 +51,10 @@ License: GPLv2+
 Group: System/Kernel and hardware
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
 URL: http://people.redhat.com/~heinzm
-Requires:       kpartx >= 0.4.8-16
-Requires:       dmraid-events
-BuildRequires:  device-mapper-devel >= 1.02.02
-BuildRequires:  device-mapper-event-devel
+Requires:	kpartx >= 0.4.8-16
+Requires:	dmraid-events
+BuildRequires:	device-mapper-devel >= 1.02.02
+BuildRequires:	device-mapper-event-devel
 %if %{use_dietlibc}
 BuildRequires: dietlibc-devel
 %else
@@ -84,7 +84,7 @@ SNIA DDF1
 VIA Software RAID
 
 %package devel
-Summary: Development libraries and headers for dmraid.
+Summary: Development libraries and headers for dmraid
 Group: Development/Libraries
 Requires: dmraid = %{version}-%{release}
 
@@ -93,7 +93,7 @@ dmraid-devel provides a library interface for RAID device discovery,
 RAID set activation and display of properties for ATARAID volumes.
 
 %package events
-Summary: dmevent_tool (Device-mapper event tool)
+Summary: Dmraid event tool
 Group: System Environment/Base
 Requires: dmraid = %{version}-%{release}
 Requires: device-mapper-event
@@ -105,7 +105,7 @@ with dmevent_tool.
 
 %if %{build_logwatch}
 %package events-logwatch
-Summary: dmraid logwatch-based email reporting
+Summary: Dmraid logwatch-based email reporting
 Group: System Environment/Base
 Requires: dmraid-events = %{version}-%{release}, logwatch, /etc/cron.d
 
