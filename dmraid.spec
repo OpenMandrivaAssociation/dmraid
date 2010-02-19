@@ -18,6 +18,9 @@
 # we need the libs in /lib(64) as /usr might be unmounted
 %define _libdir /%{_lib}
 
+### FIXME: Broken linking
+%define _disable_ld_no_undefined 1
+
 %ifarch %{ix86} x86_64
 %define use_dietlibc 0
 %else
