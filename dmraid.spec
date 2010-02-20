@@ -19,10 +19,6 @@
 # we need the libs in /lib(64) as /usr might be unmounted
 %define _libdir /%{_lib}
 
-### FIXME: Broken linking
-%define _disable_ld_as_needed 1
-%define _disable_ld_no_undefined 1
-
 %ifarch %{ix86} x86_64
 %define use_dietlibc 0
 %else
@@ -45,10 +41,11 @@ Source0: http://people.redhat.com/~heinzm/sw/dmraid/src/dmraid-%{version}%{extra
 
 # From RedHat
 Patch1:	ddf1_lsi_persistent_name.patch
-Patch2: pdc_raid10_failure.patch
+Patch2:	pdc_raid10_failure.patch
 Patch4:	avoid_register.patch
 # /From RedHat
 Patch3: lib-events-libdmraid-events-isw-strfmt.patch
+Patch5:	fix-linking.patch
 
 License: GPLv2+
 Group: System/Kernel and hardware
@@ -126,6 +123,7 @@ Device failure reporting has to be activated manually by activating the
 %patch2 -p1 -b .pdc_raid10_failure
 %patch3 -p1 -b .libdmraid_events_isw_strfmt
 %patch4 -p1 -b .avoid_register
+%patch5 -p1 -b .linking
 
 
 %build
