@@ -127,16 +127,17 @@ Device failure reporting has to be activated manually by activating the
 
 
 %build
+%define common_configure_parameters --with-user=`id -un` --with-group=`id -gn` --disable-libselinux --disable-libsepol --enable-led --enable-intel_led
 %if %{use_dietlibc}
 CFLAGS="%{optflags} -D_BSD_SOURCE" \
-%configure2_5x --enable-dietlibc --disable-libselinux --disable-libsepol --enable-led --enable-intel_led
+%configure2_5x --enable-dietlibc %{common_configure_parameters}
 %else
-%configure2_5x --enable-static_link --disable-libselinux --disable-libsepol --enable-led --enable-intel_led
+%configure2_5x --enable-static_link %{common_configure_parameters}
 %endif
 make
 mv tools/dmraid tools/dmraid-static
 make clean
-%configure --with-user=`id -un` --with-group=`id -gn`
+%configure2_5x %{common_configure_parameters}
 make
 
 
