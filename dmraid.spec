@@ -3,7 +3,17 @@
 %define extraver rc16
 #define pre pre1
 ### NOTE! THIS IS WIP! DONT SUBMIT IT TO THE BS! /tmb
-#define rel 1
+%define rel 1
+
+# from lib/version.h
+%define drmajor 1
+%define drlibname %mklibname dmraid %drmajor
+%define drdevname %mklibname dmraid -d
+%define drevents_libname %mklibname dmraid-events %drmajor
+%define drevents_devname %mklibname dmraid-events -d
+
+# we need the libs in /lib(64) as /usr might not be mounted
+%define _libdir /%{_lib}
 
 # yes this sucks, but it has to
 %if %{?extraver:1}%{?!extraver:0}
@@ -15,9 +25,6 @@
 %define extrasrc .%{extraver}
 %endif
 %endif
-
-# we need the libs in /lib(64) as /usr might be unmounted
-%define _libdir /%{_lib}
 
 %ifarch %{ix86} x86_64
 %define use_dietlibc 0
@@ -46,17 +53,18 @@ Patch4:	avoid_register.patch
 Patch6:	libversion.patch
 Patch7:	libversion-display.patch
 # /From RedHat
-Patch3: lib-events-libdmraid-events-isw-strfmt.patch
+Patch3:	lib-events-libdmraid-events-isw-strfmt.patch
 Patch5:	fix-linking.patch
 
 License: GPLv2+
-Group: System/Kernel and hardware
+Group:   System/Kernel and hardware
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
 URL: http://people.redhat.com/~heinzm
 Requires:	kpartx >= 0.4.8-16
-Requires:	dmraid-events
+Requires:	%{drlibname} = %{version}-%{release}
+Requires:	dmraid-events = %{version}-%{release}
 BuildRequires:	device-mapper-devel >= 1.02.02
-BuildRequires:	device-mapper-event-devel
+BuildRequires:	device-mapper-event-devel >= 1.02.02
 %if %{use_dietlibc}
 BuildRequires: dietlibc-devel
 %else
@@ -85,35 +93,62 @@ Silicon Image Medley
 SNIA DDF1
 VIA Software RAID
 
-%package devel
-Summary: Development libraries and headers for dmraid
-Group: Development/Libraries
-Requires: dmraid = %{version}-%{release}
 
-%description devel
-dmraid-devel provides a library interface for RAID device discovery,
-RAID set activation and display of properties for ATARAID volumes.
+%package -n %{drlibname}
+Summary:  Libraries for dmraid
+Group:    System/Libraries
+
+%description -n %{drlibname}
+Provides libraries for dmraid.
+
+
+%package -n %{drdevname}
+Summary:  Development libraries and headers for dmraid
+Group:    Development/Libraries
+
+%description -n %{drdevname}
+Provides a library interface for RAID device discovery, RAID set
+activation and display of properties for ATARAID volumes.
+
 
 %package events
-Summary: Dmraid event tool
-Group: System Environment/Base
+Summary:  Dmraid event tool
+Group:    System Environment/Base
 Requires: dmraid = %{version}-%{release}
-Requires: device-mapper-event
+Requires: %{drevents_libname} = %{version}-%{release}
+Requires: device-mapper-event  >= 1.02.02
 
 %description events
 Provides a dmeventd DSO and the dmevent_tool to register devices with it
 for device monitoring. All active RAID sets should be manually registered
 with dmevent_tool.
 
+
+%package -n %{drevents_libname}
+Summary:  Libraries for dmraid-events
+Group:    System/Libraries
+
+%description -n %{drevents_libname}
+Provides libraries for dmraid-events
+
+
+%package -n %{drevents_devname}
+Summary:  Development libraries for dmraid-events
+Group:    Development/Libraries
+
+%description -n %{drevents_devname}
+Provides a library interface dmraid-events.
+
+
 %if %{build_logwatch}
 %package events-logwatch
-Summary: Dmraid logwatch-based email reporting
-Group: System Environment/Base
+Summary:  Dmraid logwatch-based email reporting
+Group:    System Environment/Base
 Requires: dmraid-events = %{version}-%{release}, logwatch, /etc/cron.d
 
 %description events-logwatch
 Provides device failure reporting via logwatch-based email reporting.
-Device failure reporting has to be activated manually by activating the 
+Device failure reporting has to be activated manually by activating the
 /etc/cron.d/dmeventd-logwatch entry and by calling the dmevent_tool
 (see manual page for examples) for any active RAID sets.
 %endif
@@ -141,7 +176,7 @@ CFLAGS="%{optflags} -D_BSD_SOURCE" \
 make
 mv tools/dmraid tools/dmraid-static
 make clean
-%configure2_5x %{common_configure_parameters}
+%configure2_5x %{common_configure_parameters} --enable-dynamic_link
 make
 
 
@@ -151,7 +186,6 @@ mkdir -p %{buildroot}{%{_libdir},/sbin,/var/lock/dmraid,/etc/cron.d/,/etc/logwat
 %makeinstall -s sbindir=%{buildroot}/sbin
 install tools/dmraid-static %{buildroot}/sbin
 install -m 644 include/dmraid/*.h %{buildroot}%{_includedir}/dmraid/
-rm -rf %{buildroot}%{_libdir}/libdmraid.a
 
 # If requested, install the libdmraid and libdmraid-events (for dmeventd) DSO
 install -m 755 lib/libdmraid.so \
@@ -172,11 +206,10 @@ install -m 0700 /dev/null %{buildroot}/etc/logwatch/scripts/services/dmeventd_sy
 %clean
 rm -rf %{buildroot}
 
-
-%post -p /sbin/ldconfig
-%postun -p /sbin/ldconfig
-%post events -p /sbin/ldconfig
-%postun events -p /sbin/ldconfig
+%post   -n %{drlibname} -p /sbin/ldconfig
+%postun -n %{drlibname} -p /sbin/ldconfig
+%post   -n %{drevents_libname} -p /sbin/ldconfig
+%postun -n %{drevents_libname} -p /sbin/ldconfig
 
 
 %files
@@ -185,22 +218,31 @@ rm -rf %{buildroot}
 %attr(755,root,root) /sbin/dmraid
 %attr(755,root,root) /sbin/dmraid-static
 %{_mandir}/man8/dmraid.8*
-%{_libdir}/libdmraid.so*
 /var/lock/dmraid
 
+%files -n %{drlibname}
+%defattr(644,root,root,755)
+%{_libdir}/libdmraid.so.%{drmajor}*
 
-%files devel
+%files -n %{drdevname}
 %defattr(-,root,root)
 %dir %{_includedir}/dmraid
 %{_includedir}/dmraid/*
-
+%{_libdir}/libdmraid.a
+%{_libdir}/libdmraid.so
 
 %files events
 %defattr(-,root,root)
 %attr(755,root,root) /sbin/dmevent_tool
-%{_libdir}/libdmraid-events-isw.so*
 %{_mandir}/man8/dmevent_tool*
 
+%files -n %{drevents_libname}
+%defattr(-,root,root)
+%{_libdir}/libdmraid-events-isw.so.%{drmajor}*
+
+%files -n %{drevents_devname}
+%defattr(-,root,root)
+%{_libdir}/libdmraid-events-isw.so
 
 %if %{build_logwatch}
 %files events-logwatch
