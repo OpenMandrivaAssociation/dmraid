@@ -43,6 +43,8 @@ Source0: http://people.redhat.com/~heinzm/sw/dmraid/src/dmraid-%{version}%{extra
 Patch1:	ddf1_lsi_persistent_name.patch
 Patch2:	pdc_raid10_failure.patch
 Patch4:	avoid_register.patch
+Patch6:	libversion.patch
+Patch7:	libversion-display.patch
 # /From RedHat
 Patch3: lib-events-libdmraid-events-isw-strfmt.patch
 Patch5:	fix-linking.patch
@@ -124,6 +126,8 @@ Device failure reporting has to be activated manually by activating the
 %patch3 -p1 -b .libdmraid_events_isw_strfmt
 %patch4 -p1 -b .avoid_register
 %patch5 -p1 -b .linking
+%patch6 -p1 -b .libversion
+%patch7 -p1 -b .libversion_display
 
 
 %build
