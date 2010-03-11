@@ -102,7 +102,7 @@ Provides libraries for dmraid.
 
 %package -n %{drdevname}
 Summary:  Development libraries and headers for dmraid
-Group:    Development/Libraries
+Group:    System/Libraries
 
 %description -n %{drdevname}
 Provides a library interface for RAID device discovery, RAID set
@@ -111,7 +111,7 @@ activation and display of properties for ATARAID volumes.
 
 %package events
 Summary:  Dmraid event tool
-Group:    System Environment/Base
+Group:    System/Base
 Requires: dmraid = %{version}-%{release}
 Requires: device-mapper-event  >= 1.02.02
 
@@ -124,7 +124,7 @@ with dmevent_tool.
 %if %{build_logwatch}
 %package events-logwatch
 Summary:  Dmraid logwatch-based email reporting
-Group:    System Environment/Base
+Group:    System/Base
 Requires: dmraid-events = %{version}-%{release}, logwatch, /etc/cron.d
 
 %description events-logwatch
