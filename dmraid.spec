@@ -1,10 +1,8 @@
 %define name dmraid
-#define version 1.0.0
-#define extraver rc16
+%define version 1.0.0
+%define extraver rc16
 #define pre pre1
-### NOTE! THIS IS WIP! DONT SUBMIT IT TO THE BS! /tmb
-### Will be released as soon as 2010.1 Alpha 3 is out.
-#define rel 1
+%define rel 1
 
 # from lib/version.h
 %define drmajor 1
