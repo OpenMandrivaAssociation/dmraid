@@ -2,7 +2,7 @@
 %define version 1.0.0
 %define extraver rc16
 #define pre pre1
-%define rel 1
+%define rel 2
 
 # from lib/version.h
 %define drmajor 1
@@ -49,6 +49,7 @@ Patch2:	pdc_raid10_failure.patch
 Patch4:	avoid_register.patch
 Patch6:	libversion.patch
 Patch7:	libversion-display.patch
+Patch9:	return_error_wo_disks.patch
 # /From RedHat
 Patch3:	lib-events-libdmraid-events-isw-strfmt.patch
 Patch5:	fix-linking.patch
@@ -145,6 +146,7 @@ Device failure reporting has to be activated manually by activating the
 %patch6 -p1 -b .libversion
 %patch7 -p1 -b .libversion_display
 %patch8 -p1 -b .lib_events_install
+%patch9 -p1 -b .return_error_wo_disks
 
 
 %build
