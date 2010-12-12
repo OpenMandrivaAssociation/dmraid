@@ -2,7 +2,7 @@
 %define version 1.0.0
 %define extraver rc16
 #define pre pre1
-%define rel 2
+%define rel 3
 
 # from lib/version.h
 %define drmajor 1
@@ -11,6 +11,7 @@
 
 # we need the libs in /lib(64) as /usr might not be mounted
 %define _libdir /%{_lib}
+%define _usrlibdir /usr/%{_lib}
 
 # yes this sucks, but it has to
 %if %{?extraver:1}%{?!extraver:0}
@@ -43,17 +44,28 @@ Version: %{version}
 Release: %{release}
 Source0: http://people.redhat.com/~heinzm/sw/dmraid/src/dmraid-%{version}%{extrasrc}.tar.bz2
 
-# From RedHat
+# (bluca) since fedora/redhat rpm is the real upstream for dmraid
+# patch numbers < 100 are reserved for patches synced from fedora/redhat
+# patch numbers > 100 are for our distro specific patches
+Patch0: dmraid-1.0.0.rc16-test_devices.patch
 Patch1:	ddf1_lsi_persistent_name.patch
 Patch2:	pdc_raid10_failure.patch
-Patch4:	avoid_register.patch
-Patch6:	libversion.patch
-Patch7:	libversion-display.patch
-Patch9:	return_error_wo_disks.patch
-# /From RedHat
-Patch3:	lib-events-libdmraid-events-isw-strfmt.patch
-Patch5:	fix-linking.patch
-Patch8:	libdmraid-events-install.patch
+Patch3:	return_error_wo_disks.patch
+Patch4: fix_sil_jbod.patch
+Patch5:	avoid_register.patch
+#we dont use this# Patch6: move_pattern_file_to_var.patch
+Patch7:	libversion.patch
+Patch8:	libversion-display.patch
+Patch9: bz635995-data_corruption_during_activation_volume_marked_for_rebuild.patch
+# Patch10: bz626417_8-faulty_message_after_unsuccessful_vol_registration.patch
+Patch11: bz626417_19-enabling_registration_degraded_volume.patch
+Patch12: bz626417_20-cleanup_some_compilation_warning.patch
+Patch13: bz626417_21-add_option_that_postpones_any_metadata_updates.patch
+
+Patch101:	lib-events-libdmraid-events-isw-strfmt.patch
+Patch102:	fix-linking.patch
+Patch103:	libdmraid-events-soname.patch
+Patch104:	libdmraid-events-install.patch
 
 License: GPLv2+
 Group:   System/Kernel and hardware
@@ -138,16 +150,23 @@ Device failure reporting has to be activated manually by activating the
 
 %prep
 %setup -q -n %{name}/%{version}.%{extraver}
+%patch0 -p1 -b .test_devices
 %patch1 -p1 -b .ddf1_lsi_persistent_name
 %patch2 -p1 -b .pdc_raid10_failure
-%patch3 -p1 -b .libdmraid_events_isw_strfmt
-%patch4 -p1 -b .avoid_register
-%patch5 -p1 -b .linking
-%patch6 -p1 -b .libversion
-%patch7 -p1 -b .libversion_display
-%patch8 -p1 -b .lib_events_install
-%patch9 -p1 -b .return_error_wo_disks
+%patch3 -p1 -b .return_error_wo_disks
+%patch4 -p1 -b .fix_sil_jbod
+%patch5 -p1 -b .avoid_register
+%patch7 -p1 -b .libversion
+%patch8 -p1 -b .libversion_display
+%patch9 -p1 -b .bz635995
+%patch11 -p1 -b .bz626417_19
+%patch12 -p1 -b .bz626417_20
+%patch13 -p1 -b .bz626417_21
 
+%patch101 -p1 -b .libdmraid_events_isw_strfmt
+%patch102 -p1 -b .linking
+%patch103 -p1 -b .lib_events_soname
+%patch104 -p1 -b .lib_events_install
 
 %build
 %define common_configure_parameters --with-user=`id -un` --with-group=`id -gn` --disable-libselinux --disable-libsepol --enable-led --enable-intel_led
@@ -166,55 +185,65 @@ make
 
 %install
 rm -rf %{buildroot}
-mkdir -p %{buildroot}{%{_libdir},/sbin,/var/lock/dmraid,/etc/cron.d/,/etc/logwatch/conf/services/,/etc/logwatch/scripts/services/}
 %makeinstall -s sbindir=%{buildroot}/sbin
 install tools/dmraid-static %{buildroot}/sbin
-install -m 644 include/dmraid/*.h %{buildroot}%{_includedir}/dmraid/
+
+mkdir -p %{buildroot}%{_usrlibdir}
+mv %{buildroot}%{_libdir}/libdmraid.a %{buildroot}%{_usrlibdir}
+# cannot move .so symlink to %{_usrlibdir}, there is some build
+# macro that recreates it every time
+#ln -s %{_libdir}/libdmraid.so.%{drmajor} %{buildroot}%{_usrlibdir}/libdmraid.so
+#rm -f %{_libdir}/libdmraid.so
+
+mkdir -p %{buildroot}/var/lock/dmraid
 
 %if %{build_logwatch}
 # Install logwatch config file and script for dmeventd
+mkdir -p %{buildroot}/etc/cron.d
+mkdir -p %{buildroot}/etc/logwatch/conf/services
+mkdir -p %{buildroot}/etc/logwatch/scripts/services
 install -m 644 logwatch/dmeventd.conf %{buildroot}/etc/logwatch/conf/services/dmeventd.conf
 install -m 755 logwatch/dmeventd %{buildroot}/etc/logwatch/scripts/services/dmeventd
 install -m 644 logwatch/dmeventd_cronjob.txt %{buildroot}/etc/cron.d/dmeventd-logwatch
 install -m 0700 /dev/null %{buildroot}/etc/logwatch/scripts/services/dmeventd_syslogpattern.txt
 %endif
 
-
 %clean
 rm -rf %{buildroot}
 
+%if %mdkversion < 200900
 %post   -n %{drlibname} -p /sbin/ldconfig
 %postun -n %{drlibname} -p /sbin/ldconfig
-
+%endif
 
 %files
-%defattr(644,root,root,755)
-%doc CHANGELOG KNOWN_BUGS README TODO doc/dmraid_design.txt
-%attr(755,root,root) /sbin/dmraid
-%attr(755,root,root) /sbin/dmraid-static
+%defattr(-,root,root,755)
+%doc CHANGELOG CREDITS KNOWN_BUGS README TODO doc/dmraid_design.txt
+/sbin/dmraid
+/sbin/dmraid-static
 %{_mandir}/man8/dmraid.8*
-/var/lock/dmraid
+%dir /var/lock/dmraid
 
 %files -n %{drlibname}
-%defattr(644,root,root,755)
+%defattr(-,root,root,755)
 %{_libdir}/libdmraid.so.%{drmajor}*
 
 %files -n %{drdevname}
-%defattr(-,root,root)
+%defattr(644,root,root,755)
 %dir %{_includedir}/dmraid
-%{_includedir}/dmraid/*
-%{_libdir}/libdmraid.a
+%{_includedir}/dmraid/*.h
+%{_usrlibdir}/libdmraid.a
 %{_libdir}/libdmraid.so
 
 %files events
-%defattr(-,root,root)
-%attr(755,root,root) /sbin/dmevent_tool
-%{_libdir}/libdmraid-events-isw.so*
+%defattr(-,root,root,755)
+/sbin/dmevent_tool
+%{_libdir}/libdmraid-events-isw.so
 %{_mandir}/man8/dmevent_tool*
 
 %if %{build_logwatch}
 %files events-logwatch
-%defattr(-,root,root)
+%defattr(-,root,root,755)
 %config(noreplace) /etc/logwatch/*
 %config(noreplace) /etc/cron.d/dmeventd-logwatch
 %ghost /etc/logwatch/scripts/services/dmeventd_syslogpattern.txt
