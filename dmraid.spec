@@ -2,7 +2,7 @@
 %define version 1.0.0
 %define extraver rc16
 #define pre pre1
-%define rel 3
+%define rel 4
 
 # from lib/version.h
 %define drmajor 1
