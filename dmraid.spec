@@ -2,7 +2,7 @@
 %define version 1.0.0
 %define extraver rc16
 #define pre pre1
-%define rel 4
+%define rel 5
 
 # from lib/version.h
 %define drmajor 1
@@ -24,14 +24,9 @@
 %endif
 %endif
 
-%ifarch %{ix86} x86_64
-%define use_dietlibc 0
-%else
-%define use_dietlibc 0
-%endif
-
-%{?_with_dietlibc: %{expand: %%global use_dietlibc 1}}
-%{?_without_dietlibc: %{expand: %%global use_dietlibc 0}}
+%define build_static 0
+%{?_with_static: %{expand: %%global build_static 1}}
+%{?_without_static: %{expand: %%global build_static 0}}
 
 # Building of dmraid-event-logwatch (disabled by default)
 %define build_logwatch 0
@@ -76,9 +71,7 @@ Requires:	%{drlibname} = %{version}-%{release}
 Requires:	dmraid-events = %{version}-%{release}
 BuildRequires:	device-mapper-devel >= 1.02.02
 BuildRequires:	device-mapper-event-devel >= 1.02.02
-%if %{use_dietlibc}
-BuildRequires: dietlibc-devel
-%else
+%if %{build_static}
 BuildRequires: glibc-static-devel
 %endif
 
@@ -170,26 +163,27 @@ Device failure reporting has to be activated manually by activating the
 
 %build
 %define common_configure_parameters --with-user=`id -un` --with-group=`id -gn` --disable-libselinux --disable-libsepol --enable-led --enable-intel_led
-%if %{use_dietlibc}
-CFLAGS="%{optflags} -D_BSD_SOURCE" \
-%configure2_5x --enable-dietlibc %{common_configure_parameters}
-%else
-%configure2_5x --enable-static_link %{common_configure_parameters}
-%endif
+%if %{build_static}
+%configure2_5x  %{common_configure_parameters} --enable-static_link 
 make
 mv tools/dmraid tools/dmraid-static
 make clean
-%configure2_5x %{common_configure_parameters} --enable-dynamic_link
+%endif
+%configure2_5x %{common_configure_parameters} --enable-shared_lib
 make
 
 
 %install
 rm -rf %{buildroot}
 %makeinstall -s sbindir=%{buildroot}/sbin
+%if %{build_static}
 install tools/dmraid-static %{buildroot}/sbin
-
 mkdir -p %{buildroot}%{_usrlibdir}
 mv %{buildroot}%{_libdir}/libdmraid.a %{buildroot}%{_usrlibdir}
+%else
+rm -f %{buildroot}%{_libdir}/libdmraid.a
+%endif
+
 # cannot move .so symlink to %{_usrlibdir}, there is some build
 # macro that recreates it every time
 #ln -s %{_libdir}/libdmraid.so.%{drmajor} %{buildroot}%{_usrlibdir}/libdmraid.so
@@ -211,16 +205,13 @@ install -m 0700 /dev/null %{buildroot}/etc/logwatch/scripts/services/dmeventd_sy
 %clean
 rm -rf %{buildroot}
 
-%if %mdkversion < 200900
-%post   -n %{drlibname} -p /sbin/ldconfig
-%postun -n %{drlibname} -p /sbin/ldconfig
-%endif
-
 %files
 %defattr(-,root,root,755)
 %doc CHANGELOG CREDITS KNOWN_BUGS README TODO doc/dmraid_design.txt
 /sbin/dmraid
+%if %{build_static}
 /sbin/dmraid-static
+%endif
 %{_mandir}/man8/dmraid.8*
 %dir /var/lock/dmraid
 
@@ -232,7 +223,9 @@ rm -rf %{buildroot}
 %defattr(644,root,root,755)
 %dir %{_includedir}/dmraid
 %{_includedir}/dmraid/*.h
+%if %{build_static}
 %{_usrlibdir}/libdmraid.a
+%endif
 %{_libdir}/libdmraid.so
 
 %files events
