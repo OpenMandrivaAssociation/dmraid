@@ -3,7 +3,7 @@
 %define	libname	%mklibname dmraid %{major}
 %define	devname	%mklibname dmraid -d
 
-%bcond_with	static
+%bcond_without	uclibc
 # Building of dmraid-event-logwatch (disabled by default)
 %bcond_with	logwatch
 
@@ -36,6 +36,8 @@ Patch101:	lib-events-libdmraid-events-isw-strfmt.patch
 Patch102:	fix-linking.patch
 Patch103:	libdmraid-events-soname.patch
 Patch104:	libdmraid-events-install.patch
+Patch105:	dmraid-1.0.0.rc16-library-linking-fix.patch
+Patch106:	dmraid-1.0.0.rc16-log-notice.patch
 
 License:	GPLv2+
 Group:		System/Kernel and hardware
@@ -45,11 +47,37 @@ Requires:	%{libname} = %{version}-%{release}
 Requires:	dmraid-events = %{version}-%{release}
 BuildRequires:	device-mapper-devel >= 1.02.02
 BuildRequires:	device-mapper-event-devel >= 1.02.02
-%if %{with static}
-BuildRequires:	glibc-static-devel
+%if %{with uclibc}
+BuildRequires:	uClibc-devel >= 0.9.33.2-15
 %endif
 
 %description
+dmraid (Device-Mapper Raid tool) supports RAID device discovery, RAID
+set activation, creation, removal, rebuild and display of properties for
+ATARAID/DDF1 metadata.
+
+dmraid uses libdevmapper and the device-mapper kernel runtime to create
+devices with respective mappings for the ATARAID sets discovered.
+
+The following ATARAID types are supported:
+
+Adaptec HostRAID ASR
+Highpoint HPT37X
+Highpoint HPT45X
+Intel Software RAID
+JMicron JMB36x
+LSI Logic MegaRAID
+NVidia NForce
+Promise FastTrack
+Silicon Image Medley
+SNIA DDF1
+VIA Software RAID
+
+%package -n	uclibc-%{name}
+Summary:	Device-mapper ATARAID tool (uClibc build)
+Group:		System/Kernel and hardware
+
+%description -n	uclibc-%{name}
 dmraid (Device-Mapper Raid tool) supports RAID device discovery, RAID
 set activation, creation, removal, rebuild and display of properties for
 ATARAID/DDF1 metadata.
@@ -83,11 +111,11 @@ Provides libraries for dmraid.
 %package -n	%{devname}
 Summary:	Development libraries and headers for dmraid
 Group:		System/Libraries
+Requires:	%{libname} = %{version}
 
 %description -n	%{devname}
 Provides a library interface for RAID device discovery, RAID set
 activation and display of properties for ATARAID volumes.
-
 
 %package	events
 Summary:	Dmraid event tool
@@ -99,7 +127,6 @@ Requires:	device-mapper-event >= 1.02.02
 Provides a dmeventd DSO and the dmevent_tool to register devices with it
 for device monitoring. All active RAID sets should be manually registered
 with dmevent_tool.
-
 
 %if %{with logwatch}
 %package	events-logwatch
@@ -113,7 +140,6 @@ Device failure reporting has to be activated manually by activating the
 /etc/cron.d/dmeventd-logwatch entry and by calling the dmevent_tool
 (see manual page for examples) for any active RAID sets.
 %endif
-
 
 %prep
 %setup -q -n %{name}/%{version}.%{prerel}
@@ -134,25 +160,36 @@ Device failure reporting has to be activated manually by activating the
 %patch102 -p1 -b .linking
 %patch103 -p1 -b .lib_events_soname
 %patch104 -p1 -b .lib_events_install
+%patch105 -p1 -b .sanelink~
+%patch106 -p1 -b .log~
 
-%if %{with static}
+%if %{with uclibc}
 mkdir .uclibc
 cp -a * .uclibc
 %endif
 
 %build
-%if %{with static}
+%if %{with uclibc}
 pushd .uclibc
+CFLAGS="%{uclibc_cflags}" \
 %uclibc_configure \
+		--disable-mini \
 		--with-user=`id -un` \
 		--with-group=`id -gn` \
 		--disable-libselinux \
 		--disable-libsepol \
 		--enable-led \
 		--enable-intel_led \
-		--enable-shared_lib \
-		--enable-static_link 
+		--disable-shared_lib \
+		--disable-static_link 
+sed -e 's#-O2##' -i make.tmpl
 %make
+# we want to statically link against it's own library as we don't need the
+# library otherwise, making it more convenient just simply not shipping it
+ln -f lib/libdmraid.a lib/libdmraid.so
+rm tools/dmraid
+make
+unset CFLAGS
 popd
 %endif
 
@@ -172,13 +209,13 @@ popd
 chmod u+w -R %{buildroot}
 chmod 644 %{buildroot}%{_includedir}/dmraid/*.h
 
-%if %{with static}
-install -m755 uclibc/tools/dmraid -D %{buildroot}/sbin/dmraid-static
+%if %{with uclibc}
+install -m755 .uclibc/tools/dmraid -D %{buildroot}%{uclibc_root}/sbin/dmraid
 %endif
 
 mkdir -p %{buildroot}/%{_libdir}
 rm %{buildroot}/%{_lib}/libdmraid.{a,so}
-ln -srf %{buildroot}/%{_lib}/libdmraid.so.%{major} %{buildroot}%{_libdir}/libdmraid.so
+ln -sr %{buildroot}/%{_lib}/libdmraid.so.%{major} %{buildroot}%{_libdir}/libdmraid.so
 
 mkdir -p %{buildroot}/var/lock/dmraid
 
@@ -193,11 +230,14 @@ install -m700 /dev/null -D %{buildroot}/etc/logwatch/scripts/services/dmeventd_s
 %files
 %doc CHANGELOG CREDITS KNOWN_BUGS README TODO doc/dmraid_design.txt
 /sbin/dmraid
-%if %{with static}
-/sbin/dmraid-static
-%endif
 %{_mandir}/man8/dmraid.8*
 %dir /var/lock/dmraid
+
+%if %{with uclibc}
+%files -n uclibc-%{name}
+%{uclibc_root}/sbin/dmraid
+%dir /var/lock/dmraid
+%endif
 
 %files -n %{libname}
 /%{_lib}/libdmraid.so.%{major}*
@@ -205,9 +245,6 @@ install -m700 /dev/null -D %{buildroot}/etc/logwatch/scripts/services/dmeventd_s
 %files -n %{devname}
 %dir %{_includedir}/dmraid
 %{_includedir}/dmraid/*.h
-%if %{with static}
-%{_libdir}/libdmraid.a
-%endif
 %{_libdir}/libdmraid.so
 
 %files events
