@@ -169,6 +169,9 @@ popd
 
 %install
 %makeinstall  -s sbindir=%{buildroot}/sbin libdir=%{buildroot}/%{_lib}
+chmod u+w -R %{buildroot}
+chmod 644 %{buildroot}%{_includedir}/dmraid/*.h
+
 %if %{with static}
 install -m755 uclibc/tools/dmraid -D %{buildroot}/sbin/dmraid-static
 %endif
