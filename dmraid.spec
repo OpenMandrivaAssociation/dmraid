@@ -99,7 +99,6 @@ Silicon Image Medley
 SNIA DDF1
 VIA Software RAID
 
-
 %package -n	%{libname}
 Summary:	Libraries for dmraid
 Group:		System/Libraries
@@ -107,11 +106,20 @@ Group:		System/Libraries
 %description -n	%{libname}
 Provides libraries for dmraid.
 
+%package -n	uclibc-%{libname}
+Summary:	Libraries for dmraid (uClibc build)
+Group:		System/Libraries
+
+%description -n	uclibc-%{libname}
+Provides libraries for dmraid.
 
 %package -n	%{devname}
 Summary:	Development libraries and headers for dmraid
 Group:		System/Libraries
 Requires:	%{libname} = %{version}
+%if %{with uclibc}
+Requires:	uclibc-%{libname} = %{version}
+%endif
 
 %description -n	%{devname}
 Provides a library interface for RAID device discovery, RAID set
@@ -124,6 +132,16 @@ Requires:	dmraid = %{version}-%{release}
 Requires:	device-mapper-event >= 1.02.02
 
 %description	events
+Provides a dmeventd DSO and the dmevent_tool to register devices with it
+for device monitoring. All active RAID sets should be manually registered
+with dmevent_tool.
+
+%package -n	uclibc-%{name}-events
+Summary:	Dmraid event tool (uClibc build)
+Group:		System/Base
+Requires:	uclibc-dmraid = %{version}-%{release}
+
+%description -n	uclibc-%{name}-events
 Provides a dmeventd DSO and the dmevent_tool to register devices with it
 for device monitoring. All active RAID sets should be manually registered
 with dmevent_tool.
@@ -180,15 +198,10 @@ CFLAGS="%{uclibc_cflags}" \
 		--disable-libsepol \
 		--enable-led \
 		--enable-intel_led \
-		--disable-shared_lib \
+		--enable-shared_lib \
 		--disable-static_link 
 sed -e 's#-O2##' -i make.tmpl
 %make
-# we want to statically link against it's own library as we don't need the
-# library otherwise, making it more convenient just simply not shipping it
-ln -f lib/libdmraid.a lib/libdmraid.so
-rm tools/dmraid
-make
 unset CFLAGS
 popd
 %endif
@@ -205,15 +218,18 @@ popd
 %make
 
 %install
+%if %{with uclibc}
+%makeinstall -C .uclibc -s sbindir=%{buildroot}%{uclibc_root}/sbin libdir=%{buildroot}%{uclibc_root}/%{_lib}
+mkdir -p %{buildroot}%{uclibc_root}%{_libdir}
+rm -f %{buildroot}%{uclibc_root}/%{_lib}/libdmraid.{a,so}
+ln -sr %{buildroot}%{uclibc_root}/%{_lib}/libdmraid.so.%{major} %{buildroot}%{uclibc_root}%{_libdir}/libdmraid.so
+%endif
+
 %makeinstall  -s sbindir=%{buildroot}/sbin libdir=%{buildroot}/%{_lib}
 chmod u+w -R %{buildroot}
 chmod 644 %{buildroot}%{_includedir}/dmraid/*.h
 
-%if %{with uclibc}
-install -m755 .uclibc/tools/dmraid -D %{buildroot}%{uclibc_root}/sbin/dmraid
-%endif
-
-mkdir -p %{buildroot}/%{_libdir}
+mkdir -p %{buildroot}%{_libdir}
 rm %{buildroot}/%{_lib}/libdmraid.{a,so}
 ln -sr %{buildroot}/%{_lib}/libdmraid.so.%{major} %{buildroot}%{_libdir}/libdmraid.so
 
@@ -242,15 +258,29 @@ install -m700 /dev/null -D %{buildroot}/etc/logwatch/scripts/services/dmeventd_s
 %files -n %{libname}
 /%{_lib}/libdmraid.so.%{major}*
 
+%if %{with uclibc}
+%files -n uclibc-%{libname}
+%{uclibc_root}/%{_lib}/libdmraid.so.%{major}*
+%endif
+
 %files -n %{devname}
 %dir %{_includedir}/dmraid
 %{_includedir}/dmraid/*.h
 %{_libdir}/libdmraid.so
+%if %{with uclibc}
+%{uclibc_root}%{_libdir}/libdmraid.so
+%endif
 
 %files events
 /sbin/dmevent_tool
 /%{_lib}/libdmraid-events-isw.so
 %{_mandir}/man8/dmevent_tool*
+
+%if %{with uclibc}
+%files -n uclibc-%{name}-events
+%{uclibc_root}/sbin/dmevent_tool
+%{uclibc_root}/%{_lib}/libdmraid-events-isw.so
+%endif
 
 %if %{with logwatch}
 %files events-logwatch
