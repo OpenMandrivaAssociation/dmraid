@@ -11,7 +11,7 @@ Summary:	Device-mapper ATARAID tool
 Name:		dmraid
 Version:	1.0.0
 %define	prerel	rc16
-Release:	0.%{prerel}.6
+Release:	0.%{prerel}.9
 Source0:	http://people.redhat.com/~heinzm/sw/dmraid/src/%{name}-%{version}.%{prerel}.tar.bz2
 
 # (bluca) since fedora/redhat rpm is the real upstream for dmraid
