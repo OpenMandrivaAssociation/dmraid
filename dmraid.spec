@@ -167,6 +167,8 @@ cp -a * .uclibc
 %endif
 
 %build
+%global optflags %{optflags} -Wno-return-type
+
 %if %{with uclibc}
 pushd .uclibc
 CFLAGS="%{uclibc_cflags}" \
@@ -186,7 +188,7 @@ unset CFLAGS
 popd
 %endif
 
-%configure2_5x \
+%configure \
 	--libdir=/%{_lib} \
 	--sbindir=/sbin \
 	--with-user=`id -un` \
