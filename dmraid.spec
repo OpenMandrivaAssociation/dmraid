@@ -167,7 +167,7 @@ cp -a * .uclibc
 %endif
 
 %build
-%global optflags %{optflags} -Wno-return-type
+export CC=gcc
 
 %if %{with uclibc}
 pushd .uclibc
