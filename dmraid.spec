@@ -11,7 +11,7 @@
 Summary:	Device-mapper ATARAID tool
 Name:		dmraid
 Version:	1.0.0
-Release:	0.%{prerel}.10
+Release:	0.%{prerel}.11
 License:	GPLv2+
 Group:		System/Kernel and hardware
 Url:		http://people.redhat.com/~heinzm
@@ -40,6 +40,7 @@ Patch103:	libdmraid-events-soname.patch
 Patch104:	libdmraid-events-install.patch
 Patch105:	dmraid-1.0.0.rc16-library-linking-fix.patch
 Patch106:	dmraid-1.0.0.rc16-log-notice.patch
+Patch107:	dmraid-1.0.0.rc16-add-missing-libdl-linkage.patch
 
 BuildRequires:	pkgconfig(devmapper)
 BuildRequires:	pkgconfig(devmapper-event)
@@ -160,6 +161,7 @@ Device failure reporting has to be activated manually by activating the
 %prep
 %setup -qn %{name}/%{version}.%{prerel}
 %apply_patches
+autoreconf -fiv
 
 %if %{with uclibc}
 mkdir .uclibc
