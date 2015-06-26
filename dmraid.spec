@@ -11,7 +11,7 @@
 Summary:	Device-mapper ATARAID tool
 Name:		dmraid
 Version:	1.0.0
-Release:	0.%{prerel}.11
+Release:	0.%{prerel}.12
 License:	GPLv2+
 Group:		System/Kernel and hardware
 Url:		http://people.redhat.com/~heinzm
@@ -46,6 +46,8 @@ BuildRequires:	pkgconfig(devmapper)
 BuildRequires:	pkgconfig(devmapper-event)
 %if %{with uclibc}
 BuildRequires:	uClibc-devel >= 0.9.33.2-15
+BuildRequires:	uclibc-libdevmapper-devel
+BuildRequires:	uclibc-device-mapper-event-devel
 %endif
 Requires:	kpartx >= 0.4.8-16
 Requires:	dmraid-events = %{version}-%{release}
@@ -105,6 +107,7 @@ Group:		System/Libraries
 %description -n	%{libname}
 Provides libraries for dmraid.
 
+%if %{with uclibc}
 %package -n	uclibc-%{libname}
 Summary:	Libraries for dmraid (uClibc build)
 Group:		System/Libraries
@@ -112,13 +115,23 @@ Group:		System/Libraries
 %description -n	uclibc-%{libname}
 Provides libraries for dmraid.
 
+%package -n	uclibc-%{devname}
+Summary:	Development libraries and headers for dmraid
+Group:		System/Libraries
+Requires:	uclibc-%{libname} = %{EVRD}
+Requires:	%{devname} = %{EVRD}
+Provides:	uclibc-%{name}-devel = %{EVRD}
+Conflicts:	%{devname} < 1.0.0-0.rc16.12
+
+%description -n	uclibc-%{devname}
+Provides a library interface for RAID device discovery, RAID set
+activation and display of properties for ATARAID volumes.
+%endif
+
 %package -n	%{devname}
 Summary:	Development libraries and headers for dmraid
 Group:		System/Libraries
-Requires:	%{libname} = %{version}
-%if %{with uclibc}
-Requires:	uclibc-%{libname} = %{version}
-%endif
+Requires:	%{libname} = %{EVRD}
 
 %description -n	%{devname}
 Provides a library interface for RAID device discovery, RAID set
@@ -135,6 +148,7 @@ Provides a dmeventd DSO and the dmevent_tool to register devices with it
 for device monitoring. All active RAID sets should be manually registered
 with dmevent_tool.
 
+%if %{with uclibc}
 %package -n	uclibc-%{name}-events
 Summary:	Dmraid event tool (uClibc build)
 Group:		System/Base
@@ -144,6 +158,7 @@ Requires:	uclibc-dmraid = %{version}-%{release}
 Provides a dmeventd DSO and the dmevent_tool to register devices with it
 for device monitoring. All active RAID sets should be manually registered
 with dmevent_tool.
+%endif
 
 %if %{with logwatch}
 %package	events-logwatch
@@ -246,15 +261,15 @@ install -m700 /dev/null -D %{buildroot}/etc/logwatch/scripts/services/dmeventd_s
 %if %{with uclibc}
 %files -n uclibc-%{libname}
 %{uclibc_root}/%{_lib}/libdmraid.so.%{major}*
+
+%files -n uclibc-%{devname}
+%{uclibc_root}%{_libdir}/libdmraid.so
 %endif
 
 %files -n %{devname}
 %dir %{_includedir}/dmraid
 %{_includedir}/dmraid/*.h
 %{_libdir}/libdmraid.so
-%if %{with uclibc}
-%{uclibc_root}%{_libdir}/libdmraid.so
-%endif
 
 %files events
 /sbin/dmevent_tool
