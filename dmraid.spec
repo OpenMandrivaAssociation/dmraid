@@ -4,14 +4,14 @@
 %define	libname	%mklibname dmraid %{major}
 %define	devname	%mklibname dmraid -d
 
-%bcond_without	uclibc
+%bcond_with	uclibc
 # Building of dmraid-event-logwatch (disabled by default)
 %bcond_with	logwatch
 
 Summary:	Device-mapper ATARAID tool
 Name:		dmraid
 Version:	1.0.0
-Release:	0.%{prerel}.12
+Release:	0.%{prerel}.13
 License:	GPLv2+
 Group:		System/Kernel and hardware
 Url:		http://people.redhat.com/~heinzm
