@@ -80,6 +80,7 @@ Provides libraries for dmraid.
 Summary:	Development libraries and headers for dmraid
 Group:		System/Libraries
 Requires:	%{libname} = %{EVRD}
+Provides:	%{name}-devel = %{EVRD}
 
 %description -n	%{devname}
 Provides a library interface for RAID device discovery, RAID set
