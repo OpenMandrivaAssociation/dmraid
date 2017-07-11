@@ -1,11 +1,8 @@
-
-Fixes string format build error.
-
-Signed-off-by: Thomas Backlund <tmb@mandriva.org>
-
---- 1.0.0.rc16/lib/events/libdmraid-events-isw.c.orig	2009-09-16 11:55:23.000000000 +0300
-+++ 1.0.0.rc16/lib/events/libdmraid-events-isw.c	2010-02-18 21:19:03.003560112 +0200
-@@ -838,13 +838,13 @@ static void _log_either(enum log_type lo
+diff --git a/dmraid/lib/events/libdmraid-events-isw.c b/dmraid/lib/events/libdmraid-events-isw.c
+index c092762..d5efe22 100644
+--- a/dmraid/lib/events/libdmraid-events-isw.c
++++ b/dmraid/lib/events/libdmraid-events-isw.c
+@@ -824,13 +824,13 @@ static void _log_either(enum log_type log_type,
  
  	sz = _log_all_devs(log_type, rs, NULL, 0);
  	if (!sz) {

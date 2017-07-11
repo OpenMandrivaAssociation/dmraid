@@ -1,8 +1,10 @@
 # from lib/version.h
+%define _disable_ld_no_undefined %nil
 %define	prerel	rc16
 %define	major	1
 %define	libname	%mklibname dmraid %{major}
 %define	devname	%mklibname dmraid -d
+%define postrel 3
 
 # Building of dmraid-event-logwatch (disabled by default)
 %bcond_with	logwatch
@@ -10,37 +12,37 @@
 Summary:	Device-mapper ATARAID tool
 Name:		dmraid
 Version:	1.0.0
-Release:	0.%{prerel}.14
+Release:	0.%{prerel}.16
 License:	GPLv2+
 Group:		System/Kernel and hardware
 Url:		http://people.redhat.com/~heinzm
-Source0:	http://people.redhat.com/~heinzm/sw/dmraid/src/%{name}-%{version}.%{prerel}.tar.bz2
+Source0:	http://people.redhat.com/~heinzm/sw/dmraid/src/%{name}-%{version}.%{prerel}-%{postrel}.tar.bz2
 # (bluca) since fedora/redhat rpm is the real upstream for dmraid
 # patch numbers < 100 are reserved for patches synced from fedora/redhat
 # patch numbers > 100 are for our distro specific patches
-Patch0:		dmraid-1.0.0.rc16-test_devices.patch
-Patch1:		ddf1_lsi_persistent_name.patch
-Patch2:		pdc_raid10_failure.patch
-Patch3:		return_error_wo_disks.patch
-Patch4:		fix_sil_jbod.patch
-Patch5:		avoid_register.patch
+#Patch0:		dmraid-1.0.0.rc16-test_devices.patch
+#Patch1:		ddf1_lsi_persistent_name.patch
+#Patch2:		pdc_raid10_failure.patch
+#Patch3:		return_error_wo_disks.patch
+#Patch4:		fix_sil_jbod.patch
+#Patch5:		avoid_register.patch
 #we dont use this# Patch6: move_pattern_file_to_var.patch
-Patch7:		libversion.patch
-Patch8:		libversion-display.patch
-Patch9:		bz635995-data_corruption_during_activation_volume_marked_for_rebuild.patch
+#Patch7:		libversion.patch
+#Patch8:		libversion-display.patch
+#Patch9:		bz635995-data_corruption_during_activation_volume_marked_for_rebuild.patch
 # Patch10: bz626417_8-faulty_message_after_unsuccessful_vol_registration.patch
-Patch11:	bz626417_19-enabling_registration_degraded_volume.patch
-Patch12:	bz626417_20-cleanup_some_compilation_warning.patch
-Patch13:	bz626417_21-add_option_that_postpones_any_metadata_updates.patch
+#Patch11:	bz626417_19-enabling_registration_degraded_volume.patch
+#Patch12:	bz626417_20-cleanup_some_compilation_warning.patch
+#Patch13:	bz626417_21-add_option_that_postpones_any_metadata_updates.patch
 
 Patch101:	lib-events-libdmraid-events-isw-strfmt.patch
-Patch102:	fix-linking.patch
-Patch103:	libdmraid-events-soname.patch
-Patch104:	libdmraid-events-install.patch
-Patch105:	dmraid-1.0.0.rc16-library-linking-fix.patch
-Patch106:	dmraid-1.0.0.rc16-log-notice.patch
-Patch107:	dmraid-1.0.0.rc16-add-missing-libdl-linkage.patch
-Patch108:	respect-ldflags.patch
+#Patch102:	fix-linking.patch
+#Patch103:	libdmraid-events-soname.patch
+#Patch104:	libdmraid-events-install.patch
+#Patch105:	dmraid-1.0.0.rc16-library-linking-fix.patch
+#Patch106:	dmraid-1.0.0.rc16-log-notice.patch
+#Patch107:	dmraid-1.0.0.rc16-add-missing-libdl-linkage.patch
+#Patch108:	respect-ldflags.patch
 
 BuildRequires:	pkgconfig(devmapper)
 BuildRequires:	pkgconfig(devmapper-event)
@@ -113,13 +115,15 @@ Device failure reporting has to be activated manually by activating the
 %endif
 
 %prep
-%setup -qn %{name}/%{version}.%{prerel}
+%setup -qn %{name}/%{version}.%{prerel}-%{postrel}
 %apply_patches
+pushd %{name}
 autoreconf -fiv
+popd
 
 %build
-export CC=gcc
-
+#export CC=gcc
+pushd %{name}
 %configure \
 	--libdir=/%{_lib} \
 	--sbindir=/sbin \
@@ -131,14 +135,16 @@ export CC=gcc
 	--enable-intel_led \
 	--enable-shared_lib
 %make -j1
+popd
 
 %install
+pushd %{name}
 %makeinstall  -s sbindir=%{buildroot}/sbin libdir=%{buildroot}/%{_lib}
 chmod u+w -R %{buildroot}
 chmod 644 %{buildroot}%{_includedir}/dmraid/*.h
 
 mkdir -p %{buildroot}%{_libdir}
-rm %{buildroot}/%{_lib}/libdmraid.{a,so}
+rm -f %{buildroot}/%{_prefix}/lib/libdmraid.{a,so}
 ln -sr %{buildroot}/%{_lib}/libdmraid.so.%{major} %{buildroot}%{_libdir}/libdmraid.so
 
 mkdir -p %{buildroot}/var/lock/dmraid
@@ -152,7 +158,6 @@ install -m700 /dev/null -D %{buildroot}/etc/logwatch/scripts/services/dmeventd_s
 %endif
 
 %files
-%doc CHANGELOG CREDITS KNOWN_BUGS README TODO doc/dmraid_design.txt
 /sbin/dmraid
 %{_mandir}/man8/dmraid.8*
 %dir /var/lock/dmraid
@@ -167,6 +172,7 @@ install -m700 /dev/null -D %{buildroot}/etc/logwatch/scripts/services/dmeventd_s
 
 %files events
 /sbin/dmevent_tool
+/%{_lib}/device-mapper/libdmraid-events-isw.so
 /%{_lib}/libdmraid-events-isw.so
 %{_mandir}/man8/dmevent_tool*
 
