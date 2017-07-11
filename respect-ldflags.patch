@@ -1,0 +1,13 @@
+diff --git a/make.tmpl.in b/make.tmpl.in
+index adb6001..40fe321 100644
+--- a/make.tmpl.in
++++ b/make.tmpl.in
+@@ -135,7 +135,7 @@ $(TARGETS): $(OBJECTS)
+ %.so: $(OBJECTS) .export.sym
+ 
+ %.so: $(OBJECTS)
+-	$(CC) -shared -Wl,-soname,$(notdir $@).$(DMRAID_LIB_VERSION) \
++	$(CC) $(LDFLAGS) -shared -Wl,-soname,$(notdir $@).$(DMRAID_LIB_VERSION) \
+ 	-Wl,--version-script,.export.sym $(OBJECTS) -o $@ -ldevmapper-event -ldl
+ 
+ $(LIB_STATIC): $(OBJECTS)

@@ -7,10 +7,10 @@ Signed-off-by: Luca Berra <bluca@comedia.it>
 +++ 1.0.0.rc16/lib/Makefile.in	2010-02-20 16:41:31.806418900 +0200
 @@ -72,7 +72,7 @@ all: $(TARGETS)
  	@echo $(TARGETS) $(INSTALL_TARGETS)
- 
+
  $(LIB_EVENTS_SHARED):
 -	$(CC) events/$(LIB_EVENTS_NAME).c $(INCLUDES) $(CFLAGS) $(LDFLAGS) -shared  -Wl,-soname,$(notdir $@).$(DMRAID_LIB_VERSION) -o $@ -ldevmapper -ldevmapper-event -lpthread $(LIB_SHARED)
 +	$(CC) events/$(LIB_EVENTS_NAME).c $(INCLUDES) $(CFLAGS) $(LDFLAGS) -shared -o $@ -ldevmapper -ldevmapper-event -lpthread $(LIB_SHARED)
- 
+
  .PHONY: install_dmraid_libs remove_dmraid_libs
- 
+

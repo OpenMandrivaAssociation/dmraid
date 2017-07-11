@@ -40,9 +40,11 @@ Patch104:	libdmraid-events-install.patch
 Patch105:	dmraid-1.0.0.rc16-library-linking-fix.patch
 Patch106:	dmraid-1.0.0.rc16-log-notice.patch
 Patch107:	dmraid-1.0.0.rc16-add-missing-libdl-linkage.patch
+Patch108:	respect-ldflags.patch
 
 BuildRequires:	pkgconfig(devmapper)
 BuildRequires:	pkgconfig(devmapper-event)
+BuildRequires:	pkgconfig(lvm2app)
 Requires:	kpartx >= 0.4.8-16
 Requires:	dmraid-events = %{version}-%{release}
 Requires:	dmsetup
@@ -128,7 +130,7 @@ export CC=gcc
 	--enable-led \
 	--enable-intel_led \
 	--enable-shared_lib
-%make
+%make -j1
 
 %install
 %makeinstall  -s sbindir=%{buildroot}/sbin libdir=%{buildroot}/%{_lib}
