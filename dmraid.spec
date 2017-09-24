@@ -12,7 +12,7 @@
 Summary:	Device-mapper ATARAID tool
 Name:		dmraid
 Version:	1.0.0
-Release:	0.%{prerel}.16
+Release:	0.%{prerel}.17
 License:	GPLv2+
 Group:		System/Kernel and hardware
 Url:		http://people.redhat.com/~heinzm
@@ -85,6 +85,7 @@ Summary:	Development libraries and headers for dmraid
 Group:		System/Libraries
 Requires:	%{libname} = %{EVRD}
 Provides:	%{name}-devel = %{EVRD}
+Conflicts:	%{name}-events <= 1.0.0-0.rc16.16
 
 %description -n	%{devname}
 Provides a library interface for RAID device discovery, RAID set
@@ -134,6 +135,7 @@ pushd %{name}
 	--enable-led \
 	--enable-intel_led \
 	--enable-shared_lib
+
 %make -j1
 popd
 
@@ -169,11 +171,11 @@ install -m700 /dev/null -D %{buildroot}/etc/logwatch/scripts/services/dmeventd_s
 %dir %{_includedir}/dmraid
 %{_includedir}/dmraid/*.h
 %{_libdir}/libdmraid.so
+/%{_lib}/libdmraid-events-isw.so
 
 %files events
 /sbin/dmevent_tool
 /%{_lib}/device-mapper/libdmraid-events-isw.so
-/%{_lib}/libdmraid-events-isw.so
 %{_mandir}/man8/dmevent_tool*
 
 %if %{with logwatch}
