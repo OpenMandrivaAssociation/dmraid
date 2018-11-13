@@ -12,7 +12,7 @@
 Summary:	Device-mapper ATARAID tool
 Name:		dmraid
 Version:	1.0.0
-Release:	0.%{prerel}.17
+Release:	0.%{prerel}.18
 License:	GPLv2+
 Group:		System/Kernel and hardware
 Url:		http://people.redhat.com/~heinzm
@@ -117,7 +117,7 @@ Device failure reporting has to be activated manually by activating the
 
 %prep
 %setup -qn %{name}/%{version}.%{prerel}-%{postrel}
-%apply_patches
+%autopatch -p1
 pushd %{name}
 autoreconf -fiv
 popd
@@ -136,12 +136,12 @@ pushd %{name}
 	--enable-intel_led \
 	--enable-shared_lib
 
-%make -j1
+%make_build -j1
 popd
 
 %install
 pushd %{name}
-%makeinstall  -s sbindir=%{buildroot}/sbin libdir=%{buildroot}/%{_lib}
+%make_install  -s sbindir=%{buildroot}/sbin libdir=%{buildroot}/%{_lib}
 chmod u+w -R %{buildroot}
 chmod 644 %{buildroot}%{_includedir}/dmraid/*.h
 
