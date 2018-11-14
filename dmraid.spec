@@ -159,7 +159,7 @@ install -m700 /dev/null -D %{buildroot}/etc/logwatch/scripts/services/dmeventd_s
 %endif
 
 %files
-/sbin/dmraid
+#/sbin/dmraid
 %{_mandir}/man8/dmraid.8*
 %dir /var/lock/dmraid
 
