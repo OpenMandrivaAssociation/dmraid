@@ -164,7 +164,7 @@ install -m700 /dev/null -D %{buildroot}/etc/logwatch/scripts/services/dmeventd_s
 %dir /var/lock/dmraid
 
 %files -n %{libname}
-/%{_lib}/libdmraid.so.%{major}*
+#/%{_lib}/libdmraid.so.%{major}*
 
 %files -n %{devname}
 %dir %{_includedir}/dmraid
