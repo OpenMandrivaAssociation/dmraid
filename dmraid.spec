@@ -46,7 +46,6 @@ Patch101:	lib-events-libdmraid-events-isw-strfmt.patch
 
 BuildRequires:	pkgconfig(devmapper)
 BuildRequires:	pkgconfig(devmapper-event)
-BuildRequires:	pkgconfig(lvm2app)
 Requires:	kpartx >= 0.4.8-16
 Requires:	dmraid-events = %{version}-%{release}
 Requires:	dmsetup
