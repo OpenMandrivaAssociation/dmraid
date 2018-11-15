@@ -1,13 +1,13 @@
 # from lib/version.h
 %define _disable_ld_no_undefined %nil
-%define	prerel	rc16
-%define	major	1
-%define	libname	%mklibname dmraid %{major}
-%define	devname	%mklibname dmraid -d
+%define prerel rc16
+%define major 1
+%define libname %mklibname dmraid %{major}
+%define devname %mklibname dmraid -d
 %define postrel 3
 
 # Building of dmraid-event-logwatch (disabled by default)
-%bcond_with	logwatch
+%bcond_with logwatch
 
 Summary:	Device-mapper ATARAID tool
 Name:		dmraid
@@ -72,42 +72,42 @@ Silicon Image Medley
 SNIA DDF1
 VIA Software RAID
 
-%package -n	%{libname}
+%package -n %{libname}
 Summary:	Libraries for dmraid
 Group:		System/Libraries
 
-%description -n	%{libname}
+%description -n %{libname}
 Provides libraries for dmraid.
 
-%package -n	%{devname}
+%package -n %{devname}
 Summary:	Development libraries and headers for dmraid
 Group:		System/Libraries
 Requires:	%{libname} = %{EVRD}
 Provides:	%{name}-devel = %{EVRD}
 Conflicts:	%{name}-events <= 1.0.0-0.rc16.16
 
-%description -n	%{devname}
+%description -n %{devname}
 Provides a library interface for RAID device discovery, RAID set
 activation and display of properties for ATARAID volumes.
 
-%package	events
+%package events
 Summary:	Dmraid event tool
 Group:		System/Base
 Requires:	dmraid = %{version}-%{release}
 Requires:	device-mapper-event >= 1.02.02
 
-%description	events
+%description events
 Provides a dmeventd DSO and the dmevent_tool to register devices with it
 for device monitoring. All active RAID sets should be manually registered
 with dmevent_tool.
 
 %if %{with logwatch}
-%package	events-logwatch
+%package events-logwatch
 Summary:	Dmraid logwatch-based email reporting
 Group:		System/Base
 Requires:	dmraid-events = %{version}-%{release} logwatch
 
-%description	events-logwatch
+%description events-logwatch
 Provides device failure reporting via logwatch-based email reporting.
 Device failure reporting has to be activated manually by activating the
 /etc/cron.d/dmeventd-logwatch entry and by calling the dmevent_tool
@@ -174,7 +174,7 @@ install -m700 /dev/null -D %{buildroot}/etc/logwatch/scripts/services/dmeventd_s
 
 %files events
 /sbin/dmevent_tool
-/%{_lib}/device-mapper/libdmraid-events-isw.so
+#/%{_lib}/device-mapper/libdmraid-events-isw.so
 %{_mandir}/man8/dmevent_tool*
 
 %if %{with logwatch}
