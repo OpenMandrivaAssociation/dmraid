@@ -173,7 +173,7 @@ install -m700 /dev/null -D %{buildroot}/etc/logwatch/scripts/services/dmeventd_s
 #/%{_lib}/libdmraid-events-isw.so
 
 %files events
-/sbin/dmevent_tool
+#/sbin/dmevent_tool
 #/%{_lib}/device-mapper/libdmraid-events-isw.so
 %{_mandir}/man8/dmevent_tool*
 
