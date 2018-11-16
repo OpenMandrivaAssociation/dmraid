@@ -140,7 +140,7 @@ popd
 
 %install
 pushd %{name}
-%make_install  -s sbindir=%{buildroot}/sbin libdir=%{buildroot}/%{_lib}
+%make_install  -s sbindir=/sbin libdir=/%{_lib}
 chmod u+w -R %{buildroot}
 chmod 644 %{buildroot}%{_includedir}/dmraid/*.h
 
@@ -159,22 +159,22 @@ install -m700 /dev/null -D %{buildroot}/etc/logwatch/scripts/services/dmeventd_s
 %endif
 
 %files
-#/sbin/dmraid
+/sbin/dmraid
 %{_mandir}/man8/dmraid.8*
 %dir /var/lock/dmraid
 
 %files -n %{libname}
-#/%{_lib}/libdmraid.so.%{major}*
+/%{_lib}/libdmraid.so.%{major}*
 
 %files -n %{devname}
 %dir %{_includedir}/dmraid
 %{_includedir}/dmraid/*.h
 %{_libdir}/libdmraid.so
-#/%{_lib}/libdmraid-events-isw.so
+/%{_lib}/libdmraid-events-isw.so
 
 %files events
-#/sbin/dmevent_tool
-#/%{_lib}/device-mapper/libdmraid-events-isw.so
+/sbin/dmevent_tool
+/%{_lib}/device-mapper/libdmraid-events-isw.so
 %{_mandir}/man8/dmevent_tool*
 
 %if %{with logwatch}
