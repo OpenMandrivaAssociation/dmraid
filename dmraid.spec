@@ -12,11 +12,12 @@
 Summary:	Device-mapper ATARAID tool
 Name:		dmraid
 Version:	1.0.0
-Release:	0.%{prerel}.18
+Release:	0.%{prerel}.19
 License:	GPLv2+
 Group:		System/Kernel and hardware
 Url:		http://people.redhat.com/~heinzm
 Source0:	http://people.redhat.com/~heinzm/sw/dmraid/src/%{name}-%{version}.%{prerel}-%{postrel}.tar.bz2
+Source1:	80-dracut-distro-dmraid.conf
 # (bluca) since fedora/redhat rpm is the real upstream for dmraid
 # patch numbers < 100 are reserved for patches synced from fedora/redhat
 # patch numbers > 100 are for our distro specific patches
@@ -158,6 +159,9 @@ install -m644 logwatch/dmeventd_cronjob.txt -D %{buildroot}/etc/cron.d/dmeventd-
 install -m700 /dev/null -D %{buildroot}/etc/logwatch/scripts/services/dmeventd_syslogpattern.txt
 %endif
 
+mkdir -p %{buildroot}%{_prefix}/lib/dracut/dracut.conf.d
+cp %{S:1} %{buildroot}%{_prefix}/lib/dracut/dracut.conf.d/
+
 %files
 /sbin/dmraid
 %{_mandir}/man8/dmraid.8*
@@ -171,6 +175,7 @@ install -m700 /dev/null -D %{buildroot}/etc/logwatch/scripts/services/dmeventd_s
 %{_includedir}/dmraid/*.h
 %{_libdir}/libdmraid.so
 /%{_lib}/libdmraid-events-isw.so
+%{_prefix}/lib/dracut/dracut.conf.d/*.conf
 
 %files events
 /sbin/dmevent_tool
