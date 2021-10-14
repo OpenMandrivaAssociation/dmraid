@@ -12,7 +12,7 @@
 Summary:	Device-mapper ATARAID tool
 Name:		dmraid
 Version:	1.0.0
-Release:	0.%{prerel}.19
+Release:	0.%{prerel}.20
 License:	GPLv2+
 Group:		System/Kernel and hardware
 Url:		http://people.redhat.com/~heinzm
@@ -116,15 +116,15 @@ Device failure reporting has to be activated manually by activating the
 %endif
 
 %prep
-%setup -qn %{name}/%{version}.%{prerel}-%{postrel}
-%autopatch -p1
-pushd %{name}
+%autosetup -n %{name}/%{version}.%{prerel}-%{postrel} -p1
+
+cd %{name}
 autoreconf -fiv
-popd
+cd ..
 
 %build
 #export CC=gcc
-pushd %{name}
+cd %{name}
 %configure \
 	--libdir=/%{_lib} \
 	--sbindir=/sbin \
@@ -137,10 +137,10 @@ pushd %{name}
 	--enable-shared_lib
 
 %make_build -j1
-popd
+cd ..
 
 %install
-pushd %{name}
+cd %{name}
 %make_install  -s sbindir=/sbin libdir=/%{_lib}
 chmod u+w -R %{buildroot}
 chmod 644 %{buildroot}%{_includedir}/dmraid/*.h
@@ -164,7 +164,7 @@ cp %{S:1} %{buildroot}%{_prefix}/lib/dracut/dracut.conf.d/
 
 %files
 /sbin/dmraid
-%{_mandir}/man8/dmraid.8*
+%doc %{_mandir}/man8/dmraid.8*
 %dir /var/lock/dmraid
 
 %files -n %{libname}
@@ -180,7 +180,7 @@ cp %{S:1} %{buildroot}%{_prefix}/lib/dracut/dracut.conf.d/
 %files events
 /sbin/dmevent_tool
 /%{_lib}/device-mapper/libdmraid-events-isw.so
-%{_mandir}/man8/dmevent_tool*
+%doc %{_mandir}/man8/dmevent_tool*
 
 %if %{with logwatch}
 %files events-logwatch
