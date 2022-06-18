@@ -12,7 +12,7 @@
 Summary:	Device-mapper ATARAID tool
 Name:		dmraid
 Version:	1.0.0
-Release:	0.%{prerel}.20
+Release:	0.%{prerel}.21
 License:	GPLv2+
 Group:		System/Kernel and hardware
 Url:		http://people.redhat.com/~heinzm
@@ -126,8 +126,7 @@ cd ..
 #export CC=gcc
 cd %{name}
 %configure \
-	--libdir=/%{_lib} \
-	--sbindir=/sbin \
+	--sbindir=%{_bindir} \
 	--with-user=`id -un` \
 	--with-group=`id -gn` \
 	--disable-libselinux \
@@ -141,13 +140,9 @@ cd ..
 
 %install
 cd %{name}
-%make_install  -s sbindir=/sbin libdir=/%{_lib}
+%make_install -s sbindir=%{_bindir} libdir=%{_libdir}
 chmod u+w -R %{buildroot}
 chmod 644 %{buildroot}%{_includedir}/dmraid/*.h
-
-mkdir -p %{buildroot}%{_libdir}
-rm -f %{buildroot}/%{_prefix}/lib/libdmraid.{a,so}
-ln -sr %{buildroot}/%{_lib}/libdmraid.so.%{major} %{buildroot}%{_libdir}/libdmraid.so
 
 mkdir -p %{buildroot}/var/lock/dmraid
 
@@ -162,24 +157,31 @@ install -m700 /dev/null -D %{buildroot}/etc/logwatch/scripts/services/dmeventd_s
 mkdir -p %{buildroot}%{_prefix}/lib/dracut/dracut.conf.d
 cp %{S:1} %{buildroot}%{_prefix}/lib/dracut/dracut.conf.d/
 
+# Fix static lib getting installed at all and .so file getting
+# installed in the wrong place
+rm %{buildroot}%{_prefix}/lib/*.a
+rm %{buildroot}%{_prefix}/lib/*.so
+cd %{buildroot}%{_libdir}
+ln -s libdmraid.so.%{major}.* libdmraid.so
+
 %files
-/sbin/dmraid
+%{_bindir}/dmraid
 %doc %{_mandir}/man8/dmraid.8*
 %dir /var/lock/dmraid
 
 %files -n %{libname}
-/%{_lib}/libdmraid.so.%{major}*
+%{_libdir}/libdmraid.so.%{major}*
 
 %files -n %{devname}
 %dir %{_includedir}/dmraid
 %{_includedir}/dmraid/*.h
 %{_libdir}/libdmraid.so
-/%{_lib}/libdmraid-events-isw.so
+%{_libdir}/libdmraid-events-isw.so
 %{_prefix}/lib/dracut/dracut.conf.d/*.conf
 
 %files events
-/sbin/dmevent_tool
-/%{_lib}/device-mapper/libdmraid-events-isw.so
+%{_bindir}/dmevent_tool
+%{_libdir}/device-mapper/libdmraid-events-isw.so
 %doc %{_mandir}/man8/dmevent_tool*
 
 %if %{with logwatch}
