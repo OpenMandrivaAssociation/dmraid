@@ -15,7 +15,7 @@ Version:	1.0.0
 Release:	0.%{prerel}.22
 License:	GPLv2+
 Group:		System/Kernel and hardware
-Url:		http://people.redhat.com/~heinzm
+Url:		https://people.redhat.com/~heinzm
 Source0:	http://people.redhat.com/~heinzm/sw/dmraid/src/%{name}-%{version}.%{prerel}-%{postrel}.tar.bz2
 Source1:	80-dracut-distro-dmraid.conf
 # (bluca) since fedora/redhat rpm is the real upstream for dmraid
