@@ -45,6 +45,11 @@ Patch101:	lib-events-libdmraid-events-isw-strfmt.patch
 #Patch107:	dmraid-1.0.0.rc16-add-missing-libdl-linkage.patch
 #Patch108:	respect-ldflags.patch
 
+BuildRequires:	autoconf
+BuildRequires:	automake
+BuildRequires:	libtool-base
+BuildRequires:	slibtool
+BuildRequires:	make
 BuildRequires:	pkgconfig(devmapper)
 BuildRequires:	pkgconfig(devmapper-event)
 Requires:	kpartx >= 0.4.8-16
